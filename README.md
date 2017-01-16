@@ -7,4 +7,6 @@ Use sms via twilio and google sheets API to ensure accountability in a distribut
 
 Taskies:
 ---
- [ ] Have good times.
+ - [ ] Send texts.
+ - [ ] Read sheets.
+ - [ ] Elsething.
