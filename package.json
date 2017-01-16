@@ -1,0 +1,32 @@
+{
+  "name": "sms-accountability",
+  "version": "0.1.0",
+  "description": "Use sms via twilio and google sheets API to ensure accountability in a distributed group setting for task doing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "i-dont-know-yet.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/blendersfun/sms-accountability.git"
+  },
+  "keywords": [
+    "sms",
+    "twilio",
+    "google",
+    "sheets",
+    "accountability",
+    "productivity",
+    "task",
+    "group",
+    "setting",
+    "distributed",
+    "doing"
+  ],
+  "author": "Aaron Moore <two.a.ron@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blendersfun/sms-accountability/issues"
+  },
+  "homepage": "https://github.com/blendersfun/sms-accountability#readme"
+}

@@ -1,7 +1,10 @@
-SMS-ACCOUNTABILITY
+Sms-accountability
 ======
 
 Description
 ---
+Use sms via twilio and google sheets API to ensure accountability in a distributed group setting for task doing.
 
-YO DUDES! Use this Great Tool to make your LIFE GOOD!
+Taskies:
+---
+ [ ] Have good times.
