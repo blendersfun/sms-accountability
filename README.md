@@ -7,6 +7,7 @@ Use sms via twilio and google sheets API to ensure accountability in a distribut
 
 Taskies:
 ---
- - [ ] Send texts.
+ - [x] Send texts.
  - [ ] Read sheets.
- - [ ] Elsething.
+ - [ ] Work out method for testing. Async, time-based, mock-spreadsheet data, etc.
+ - [ ] Recieving texts.
