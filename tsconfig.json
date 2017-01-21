@@ -4,11 +4,12 @@
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "sourceMap": true
+        "sourceMap": true,
         "outDir": "dist"
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "types/**/*"
     ],
     "exclude": [
         "node_modules"

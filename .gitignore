@@ -1,3 +1,4 @@
 *.swp
 config/local.json
 dist/
+secrets/

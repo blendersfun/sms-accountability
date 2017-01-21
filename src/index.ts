@@ -1,5 +1,11 @@
-import { sendMessage } from "./sms";
+import { GoogleSheets } from './google-sheets';
+import * as config from 'config';
 
-sendMessage("phone number of victim goes here", "surreal bizarro humor goes here").then(function (message) {
-    console.log(message.sid);
+GoogleSheets.newConnection().then(sheets => {
+    sheets.getSheetRange(
+        config.get<string>('greatHouseMaintenance.googleSheetId'),
+        config.get<string>('greatHouseMaintenance.scheduleName') + '!B2:D'
+    ).then(data => {
+        console.log(data);
+    });
 });
