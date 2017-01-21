@@ -10,7 +10,8 @@ Taskies:
  - [x] Send texts.
  - [x] Send texts in a way that is easily mocked.
  - [x] Read sheets.
- - [ ] Write sheets.
+ - [x] Write sheets.
+ - [ ] Work out sufficient deployment stuff that receiving texts can be done practically.
  - [ ] Receiving texts.
  - [ ] Work out method for testing. Async, time-based, mock-spreadsheet data, etc.
 

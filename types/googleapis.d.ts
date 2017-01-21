@@ -11,13 +11,23 @@ declare module "googleapis" {
         }
         interface IGoogleSheetsSpreadsheetsValues {
             get: (
-                config: {
+                params: {
                     auth: IGoogleApisJWTClient,
                     spreadsheetId: string,
                     range: string
                 },
                 callback: (err: any, response: any) => void
-            ) => void
+            ) => any,
+            update: (
+                params: {
+                    auth: IGoogleApisJWTClient,
+                    spreadsheetId: string,
+                    range: string,
+                    valueInputOption: string,
+                    resource: any
+                },
+                callback: (err: any, response: any) => void
+            ) => any
         }
         interface IGoogleSheetsSpreadsheets {
             values: IGoogleSheetsSpreadsheetsValues
