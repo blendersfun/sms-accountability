@@ -13,9 +13,9 @@ Taskies:
  - [x] Write sheets.
  - [x] Receiving texts.
  - [x] Receiving texts in a way that is easily mocked.
+ - [x] Build the application that all this IO is for.
+ - [x] Work out method for testing. Async, time-based, mock-spreadsheet data, etc.
  - [ ] Work out sufficient deployment stuff that receiving texts can be done practically.
- - [ ] Work out method for testing. Async, time-based, mock-spreadsheet data, etc.
- - [ ] Build the application that all this IO is for.
 
 Resources:
  - [Webstorm Typescript Support](https://www.jetbrains.com/help/webstorm/2016.3/transpiling-typescript-to-javascript.html)

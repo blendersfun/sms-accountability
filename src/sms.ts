@@ -1,7 +1,6 @@
 import * as config from "config";
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { GoogleSheets } from './google-sheets';
 
 /* Send Message */
 
