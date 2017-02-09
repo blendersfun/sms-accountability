@@ -1,4 +1,5 @@
 import { sendNotificationsIfNeeded } from './index';
+import { parseDate } from './datetime';
 import * as chai from 'chai';
 
 describe("sendNotificationsIfNeeded", () => {
@@ -10,7 +11,7 @@ describe("sendNotificationsIfNeeded", () => {
         nathan,
         theAliens
     ];
-    let defaultCurrentDay = new Date('2017-02-05T13:56-0800'); // Feb 5, 2017 at 1:56pm in PST
+    let defaultCurrentDay = parseDate('2/5/2017'); // Feb 5, 2017 in PST
 
     describe("sending messages at the right times", () => {
         it("sends reminder message if an incomplete task is due tomorrow, if only a day is turning over", () => {
@@ -31,7 +32,7 @@ describe("sendNotificationsIfNeeded", () => {
             chai.expect(messages[0][1]).to.match(/Due tomorrow/);
         });
         it("sends reminder message if an incomplete task is due tomorrow, if a year is turning over", () => {
-            let currentDate = new Date('2016-12-31T13:56-0800'); // Dec 31, 2016 at 1:56pm in PST
+            let currentDate = parseDate('12/31/2016'); // Dec 31, 2016 in PST
             let tasks = [{
                 task: 'Reduce all matter in the universe to a fine dust.',
                 due: '1/1/2017',

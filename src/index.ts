@@ -2,6 +2,7 @@ import { GoogleSheets } from './google-sheets';
 import * as config from 'config';
 import { getCurrentDatetime, parseDate } from './datetime';
 import { sendMessage } from "./sms";
+import * as moment from 'moment-timezone';
 
 function runMeOnceADayAtTheCorrectTime() {
     GoogleSheets.newConnection().then(sheets => {
@@ -62,22 +63,22 @@ type SendTextCallback = (toNumber: string, message: string) => void;
 export function sendNotificationsIfNeeded(
     tasks: any,
     contacts: any,
-    currentDate: Date,
+    currentDate: moment.Moment,
     sendTextCallback: SendTextCallback
 ) {
-    let currentDateMS = killTime(currentDate).getTime();
+    let currentDateMS = killTime(currentDate).valueOf();
 
     tasks.forEach((task: any) => {
         if (task.completed && task.completed.trim() !== '') return;
-        let taskDate = killTime(parseDate(task.due)).getTime(); // Todo: timezones.
+        let taskDate = killTime(parseDate(task.due)).valueOf();
 
         if (currentDateMS > taskDate) { // Late:
             notify(task, contacts, sendTextCallback, 'Late task: ');
         } else if (currentDateMS < taskDate) {
-            let tomorrow = new Date(currentDate);
-            tomorrow.setDate(tomorrow.getDate() + 1); // This is weird... but works.
+            let tomorrow = moment(currentDate);
+            tomorrow.add(1, 'days');
 
-            if (tomorrow.getTime() === taskDate) { // Tomorrow:
+            if (tomorrow.valueOf() === taskDate) { // Tomorrow:
                 notify(task, contacts, sendTextCallback, 'Due tomorrow: ');
             }
         } else { // Today:
@@ -114,11 +115,11 @@ function formatPhoneForTwilio(number: string): string {
     return '+' + result;
 }
 
-function killTime(date: Date) {
-    date.setHours(0);
-    date.setMinutes(0);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
+function killTime(date: moment.Moment): moment.Moment {
+    date.hour(0);
+    date.minute(0);
+    date.second(0);
+    date.millisecond(0);
     return date;
 }
 
@@ -126,16 +127,16 @@ function setupSuperAwesomeGoodTimes() {
     let now = getCurrentDatetime();
     let nextGoodTimes = getCurrentDatetime();
 
-    nextGoodTimes.setMilliseconds(0);
-    nextGoodTimes.setSeconds(0);
-    nextGoodTimes.setMinutes(0);
-    nextGoodTimes.setHours(12);
+    nextGoodTimes.millisecond(0);
+    nextGoodTimes.second(0);
+    nextGoodTimes.minute(0);
+    nextGoodTimes.hour(12);
 
     if (nextGoodTimes <= now) {
-        nextGoodTimes.setDate(nextGoodTimes.getDate() + 1); // This is weird... but works.
+        nextGoodTimes.add(1, 'days');
     }
 
-    let diffMillis = nextGoodTimes.getTime() - now.getTime();
+    let diffMillis = nextGoodTimes.valueOf() - now.valueOf();
     setTimeout(() => {
         runMeOnceADayAtTheCorrectTime();
         setupSuperAwesomeGoodTimes();
