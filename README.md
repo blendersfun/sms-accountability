@@ -15,6 +15,7 @@ Taskies:
  - [x] Receiving texts in a way that is easily mocked.
  - [x] Build the application that all this IO is for.
  - [x] Work out method for testing. Async, time-based, mock-spreadsheet data, etc.
+ - [x] Improve messages such that they contain 'Partners in crime' information.
  - [ ] Work out sufficient deployment stuff that receiving texts can be done practically.
 
 Resources:

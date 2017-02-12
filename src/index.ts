@@ -95,13 +95,23 @@ export function sendNotificationsIfNeeded(
     //   Ignore all others.
 }
 
-function notify(task: any, contacts: any, sendTextCallback: SendTextCallback, prependMessage: string) {
+export function notify(task: any, contacts: any, sendTextCallback: SendTextCallback, prependMessage: string) {
     if (task.people) {
         let people = task.people.split(/\s*,\s*/g).map((person: any) => {
             return contacts.filter((contact: any) => contact.person === person)[0];
         });
         people.forEach((person: any) => {
-            sendTextCallback(formatPhoneForTwilio(person.phone), prependMessage + task.task);
+            let otherPeople = people.filter((otherPerson: any) => otherPerson !== person);
+            let partners = 'We\'re all depending on you.';
+            if (otherPeople.length === 1) {
+                partners = ` Your partner in crime is ${otherPeople[0].person}.`;
+            } else if (otherPeople.length === 2) {
+                partners  = ` Your partners in crime are ${otherPeople[0].person} and ${otherPeople[1].person}.`;
+            } else if (otherPeople.length > 2) {
+                let lastPartner = otherPeople.pop();
+                partners  = ` Your partners in crime are ${otherPeople.map((c: any) => c.person).join(', ')}, and ${lastPartner.person}.`;
+            }
+            sendTextCallback(formatPhoneForTwilio(person.phone), `${prependMessage}${task.task}.${partners}`);
         });
     }
 }
