@@ -102,7 +102,7 @@ export function notify(task: any, contacts: any, sendTextCallback: SendTextCallb
         });
         people.forEach((person: any) => {
             let otherPeople = people.filter((otherPerson: any) => otherPerson !== person);
-            let partners = 'We\'re all depending on you.';
+            let partners = ` We're all depending on you.`;
             if (otherPeople.length === 1) {
                 partners = ` Your partner in crime is ${otherPeople[0].person}.`;
             } else if (otherPeople.length === 2) {
