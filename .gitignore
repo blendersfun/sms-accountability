@@ -2,3 +2,4 @@
 config/local.json
 dist/
 secrets/
+node_modules/
