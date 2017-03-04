@@ -2,10 +2,10 @@ import { sendNotificationsIfNeeded, notify } from './index';
 import { parseDate } from './datetime';
 import * as chai from 'chai';
 
-let aaron = { person: 'Aaron',  phone: '+15436759345' };
-let nathan = { person: 'Nathan', phone: '+13456423456' };
-let theAliens = { person: 'The Aliens', phone: '+10000000000' };
-let bagMan = { person: 'Bag Man', phone: '+19999999999' };
+let aaron = { person: { val: 'Aaron' },  phone: { val: '+15436759345' } };
+let nathan = { person: { val: 'Nathan' }, phone: { val: '+13456423456' } };
+let theAliens = { person: { val: 'The Aliens' }, phone: { val: '+10000000000' } };
+let bagMan = { person: { val: 'Bag Man' }, phone: { val: '+19999999999' } };
 let contacts = [
     aaron,
     nathan,
@@ -19,9 +19,9 @@ describe("sendNotificationsIfNeeded", () => {
     describe("sending messages at the right times", () => {
         it("sends reminder message if an incomplete task is due tomorrow, if only a day is turning over", () => {
             let tasks = [{
-                task: 'Reduce all matter in the universe to a fine dust',
-                due: '2/6/2017',
-                people: 'The Aliens'
+                task: { val: 'Reduce all matter in the universe to a fine dust' },
+                due: { val: '2/6/2017' },
+                people: { val: 'The Aliens' }
             }];
 
             let messages: any[] = [];
@@ -30,16 +30,16 @@ describe("sendNotificationsIfNeeded", () => {
             });
 
             chai.expect(messages[0]).not.to.be.undefined;
-            chai.expect(messages[0][0]).to.equal(theAliens.phone);
+            chai.expect(messages[0][0]).to.equal(theAliens.phone.val);
             chai.expect(messages[0][1]).to.be.a('string');
             chai.expect(messages[0][1]).to.match(/Due tomorrow/);
         });
         it("sends reminder message if an incomplete task is due tomorrow, if a year is turning over", () => {
             let currentDate = parseDate('12/31/2016'); // Dec 31, 2016 in PST
             let tasks = [{
-                task: 'Reduce all matter in the universe to a fine dust',
-                due: '1/1/2017',
-                people: 'The Aliens'
+                task: { val: 'Reduce all matter in the universe to a fine dust' },
+                due: { val: '1/1/2017' },
+                people: { val: 'The Aliens' }
             }];
 
             let messages: any[] = [];
@@ -48,14 +48,14 @@ describe("sendNotificationsIfNeeded", () => {
             });
 
             chai.expect(messages[0]).not.to.be.undefined;
-            chai.expect(messages[0][0]).to.equal(theAliens.phone);
+            chai.expect(messages[0][0]).to.equal(theAliens.phone.val);
             chai.expect(messages[0][1]).to.be.a('string');
         });
         it("sends reminder message if an incomplete task is due today", () => {
             let tasks = [{
-                task: 'Reduce all matter in the universe to a fine dust',
-                due: '2/5/2017',
-                people: 'The Aliens'
+                task: { val: 'Reduce all matter in the universe to a fine dust' },
+                due: { val: '2/5/2017' },
+                people: { val: 'The Aliens' }
             }];
 
             let messages: any[] = [];
@@ -64,15 +64,15 @@ describe("sendNotificationsIfNeeded", () => {
             });
 
             chai.expect(messages[0]).not.to.be.undefined;
-            chai.expect(messages[0][0]).to.equal(theAliens.phone);
+            chai.expect(messages[0][0]).to.equal(theAliens.phone.val);
             chai.expect(messages[0][1]).to.be.a('string');
             chai.expect(messages[0][1]).to.match(/Due today/);
         });
         it("sends reminder message if an incomplete task is late", () => {
             let tasks = [{
-                task: 'Reduce all matter in the universe to a fine dust',
-                due: '2/4/2017',
-                people: 'The Aliens'
+                task: { val: 'Reduce all matter in the universe to a fine dust' },
+                due: { val: '2/4/2017' },
+                people: { val: 'The Aliens' }
             }];
 
             let messages: any[] = [];
@@ -81,15 +81,15 @@ describe("sendNotificationsIfNeeded", () => {
             });
 
             chai.expect(messages[0]).not.to.be.undefined;
-            chai.expect(messages[0][0]).to.equal(theAliens.phone);
+            chai.expect(messages[0][0]).to.equal(theAliens.phone.val);
             chai.expect(messages[0][1]).to.be.a('string');
             chai.expect(messages[0][1]).to.match(/Late task/);
         });
         it("does not send a reminder if the date is more than 1 day in the future", () => {
             let tasks = [{
-                task: 'Reduce all matter in the universe to a fine dust',
-                due: '2/7/2017',
-                people: 'The Aliens'
+                task: { val: 'Reduce all matter in the universe to a fine dust' },
+                due: { val: '2/7/2017' },
+                people: { val: 'The Aliens' }
             }];
 
             let messages: any[] = [];
@@ -104,9 +104,9 @@ describe("sendNotificationsIfNeeded", () => {
     describe("sending messages to the right people", () => {
         it("sends messages to multiple people", () => {
             let tasks = [{
-                task: 'Make a fine, fine, *fine* breakfast for all the other roommates',
-                due: '2/6/2017',
-                people: 'Aaron, Nathan, The Aliens'
+                task: { val: 'Make a fine, fine, *fine* breakfast for all the other roommates' },
+                due: { val: '2/6/2017' },
+                people: { val: 'Aaron, Nathan, The Aliens' }
             }];
 
             let messages: any[] = [];
@@ -114,9 +114,9 @@ describe("sendNotificationsIfNeeded", () => {
                 messages.push([toNumber, message]);
             });
 
-            let aaronMessage =  messages.filter(message => message[0] === aaron.phone);
-            let nathanMessage = messages.filter(message => message[0] === nathan.phone);
-            let aliensMessage = messages.filter(message => message[0] === theAliens.phone);
+            let aaronMessage =  messages.filter(message => message[0] === aaron.phone.val);
+            let nathanMessage = messages.filter(message => message[0] === nathan.phone.val);
+            let aliensMessage = messages.filter(message => message[0] === theAliens.phone.val);
 
             chai.expect(aaronMessage).not.to.be.empty;
             chai.expect(nathanMessage).not.to.be.empty;
@@ -124,9 +124,9 @@ describe("sendNotificationsIfNeeded", () => {
         });
         it("does not send to a person not in the assignee list", () => {
             let tasks = [{
-                task: 'Make a fine, fine, *fine* breakfast for all the other roommates',
-                due: '2/6/2017',
-                people: 'Aaron, The Aliens'
+                task: { val: 'Make a fine, fine, *fine* breakfast for all the other roommates' },
+                due: { val: '2/6/2017' },
+                people: { val: 'Aaron, The Aliens' }
             }];
 
             let messages: any[] = [];
@@ -134,9 +134,9 @@ describe("sendNotificationsIfNeeded", () => {
                 messages.push([toNumber, message]);
             });
 
-            let aaronMessage =  messages.filter(message => message[0] === aaron.phone);
-            let nathanMessage = messages.filter(message => message[0] === nathan.phone);
-            let aliensMessage = messages.filter(message => message[0] === theAliens.phone);
+            let aaronMessage =  messages.filter(message => message[0] === aaron.phone.val);
+            let nathanMessage = messages.filter(message => message[0] === nathan.phone.val);
+            let aliensMessage = messages.filter(message => message[0] === theAliens.phone.val);
 
             chai.expect(aaronMessage).not.to.be.empty;
             chai.expect(nathanMessage).to.be.empty;
@@ -147,10 +147,10 @@ describe("sendNotificationsIfNeeded", () => {
     describe("sending the right tasks", () => {
         it("does not send reminders about completed tasks", () => {
             let tasks = [{
-                task: 'Reduce all matter in the universe to a fine dust',
-                due: '2/4/2017',
-                people: 'The Aliens',
-                completed: 'x'
+                task: { val: 'Reduce all matter in the universe to a fine dust' },
+                due: { val: '2/4/2017' },
+                people: { val: 'The Aliens' },
+                completed: { val: 'x' }
             }];
 
             let messages: any[] = [];
@@ -162,19 +162,19 @@ describe("sendNotificationsIfNeeded", () => {
         });
         it("sends reminders for incomplete tasks from a list with multiple tasks", () => {
             let tasks = [{
-                task: 'Reduce all matter in the universe to a fine dust',
-                due: '2/4/2017',
-                people: 'The Aliens',
-                completed: 'x'
+                task: { val: 'Reduce all matter in the universe to a fine dust' },
+                due: { val: '2/4/2017' },
+                people: { val: 'The Aliens' },
+                completed: { val: 'x' }
             },{
-                task: 'Whisper funny rhymes to the cat',
-                due: '2/4/2017',
-                people: 'Nathan',
-                completed: ' '
+                task: { val: 'Whisper funny rhymes to the cat' },
+                due: { val: '2/4/2017' },
+                people: { val: 'Nathan' },
+                completed: { val: ' ' }
             },{
-                task: 'Go up on the roof and howl for several hours',
-                due: '2/4/2017',
-                people: 'Aaron'
+                task: { val: 'Go up on the roof and howl for several hours' },
+                due: { val: '2/4/2017' },
+                people: { val: 'Aaron' }
             }];
 
             let messages: any[] = [];
@@ -182,9 +182,9 @@ describe("sendNotificationsIfNeeded", () => {
                 messages.push([toNumber, message]);
             });
 
-            let aaronMessage =  messages.filter(message => message[0] === aaron.phone);
-            let nathanMessage = messages.filter(message => message[0] === nathan.phone);
-            let aliensMessage = messages.filter(message => message[0] === theAliens.phone);
+            let aaronMessage =  messages.filter(message => message[0] === aaron.phone.val);
+            let nathanMessage = messages.filter(message => message[0] === nathan.phone.val);
+            let aliensMessage = messages.filter(message => message[0] === theAliens.phone.val);
 
             chai.expect(aaronMessage).not.to.be.empty;
             chai.expect(nathanMessage).not.to.be.empty;
@@ -198,9 +198,9 @@ describe('notify', function () {
         describe('includes partners in crime', function () {
             it('formats well with zero partners', function () {
                 let task = {
-                    task: 'Go up on the roof and howl for several hours',
-                    due: '2/4/2017',
-                    people: 'Aaron'
+                    task: { val: 'Go up on the roof and howl for several hours' },
+                    due: { val: '2/4/2017' },
+                    people: { val: 'Aaron' }
                 };
 
                 let messages: any[] = [];
@@ -212,9 +212,9 @@ describe('notify', function () {
             });
             it('formats well with one partner', function () {
                 let task = {
-                    task: 'Go up on the roof and howl for several hours',
-                    due: '2/4/2017',
-                    people: 'Aaron, Nathan'
+                    task: { val: 'Go up on the roof and howl for several hours' },
+                    due: { val: '2/4/2017' },
+                    people: { val: 'Aaron, Nathan' }
                 };
 
                 let messages: any[] = [];
@@ -227,9 +227,9 @@ describe('notify', function () {
             });
             it('formats well with two partners', function () {
                 let task = {
-                    task: 'Go up on the roof and howl for several hours',
-                    due: '2/4/2017',
-                    people: 'Aaron, Nathan, The Aliens'
+                    task: { val: 'Go up on the roof and howl for several hours' },
+                    due: { val: '2/4/2017' },
+                    people: { val: 'Aaron, Nathan, The Aliens' }
                 };
 
                 let messages: any[] = [];
@@ -243,9 +243,9 @@ describe('notify', function () {
             });
             it('formats well with three partners', function () {
                 let task = {
-                    task: 'Go up on the roof and howl for several hours',
-                    due: '2/4/2017',
-                    people: 'Aaron, Nathan, The Aliens, Bag Man'
+                    task: { val: 'Go up on the roof and howl for several hours' },
+                    due: { val: '2/4/2017' },
+                    people: { val: 'Aaron, Nathan, The Aliens, Bag Man' }
                 };
 
                 let messages: any[] = [];

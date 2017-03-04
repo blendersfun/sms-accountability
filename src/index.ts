@@ -5,18 +5,23 @@ import { sendMessage } from "./sms";
 import * as moment from 'moment-timezone';
 
 function runMeOnceADayAtTheCorrectTime() {
-    GoogleSheets.newConnection().then(sheets => {
-            let sheetId = config.get<string>('greatHouseMaintenance.googleSheetId');
-            let scheduleName = config.get<string>('greatHouseMaintenance.scheduleName');
-            let contactSheetName = config.get<string>('greatHouseMaintenance.contactSheetName');
+    let sheetId = config.get<string>('greatHouseMaintenance.googleSheetId');
+    let scheduleName = config.get<string>('greatHouseMaintenance.scheduleName');
+    let contactSheetName = config.get<string>('greatHouseMaintenance.contactSheetName');
+    let sheets: GoogleSheets = null;
 
-            let schedulePromise = sheets.getSheetRange(sheetId, scheduleName, 'B:E');
+    GoogleSheets.newConnection().then(sheetsConnection => {
+            sheets = sheetsConnection;
+            return reconcileCompletionCodes(sheets, sheetId, scheduleName);
+        })
+        .then(() => {
+            let schedulePromise = sheets.getSheetRange(sheetId, scheduleName, 'B:F');
             let contactsPromise = sheets.getSheetRange(sheetId, contactSheetName, 'A:D');
 
             return Promise.all([schedulePromise, contactsPromise])
                 .then(([scheduleData, contactsData]) => {
-                    let tasks = parseTable(['task', 'due', 'people', 'completed'], scheduleData.values);
-                    let contacts = parseTable(['person', 'phone'], contactsData.values);
+                    let tasks = parseTable(['task', 'due', 'people', 'completed'], scheduleData);
+                    let contacts = parseTable(['person', 'phone'], contactsData);
 
                     sendNotificationsIfNeeded(tasks, contacts, getCurrentDatetime(), (toNumber, message) => {
                         sendMessage(toNumber, message);
@@ -28,16 +33,33 @@ function runMeOnceADayAtTheCorrectTime() {
         });
 }
 
-function parseTable(titles: string[], values: any[]): any[] {
+function reconcileCompletionCodes(sheets: GoogleSheets, sheetId: string, scheduleName: string): Promise<void> {
+    // Read schedule in.
+    //  1. remove completion codes from completed items.
+    //  2. build a list of occupied codes
+    //  3. fill in codes for incomplete tasks
+
+    return sheets.getSheetRange(sheetId, scheduleName, 'B:F').then(scheduleData => {
+        let tasks = parseTable(['completed', 'code'], scheduleData);
+    }).then(() => {});
+}
+
+function parseTable(titles: string[], tableData: any): any[] {
+    let values = tableData.values;
+    let range = tableData.range.slice(tableData.range.indexOf('!') + 1);
+
     titles = titles.map(title => title.toLowerCase());
     let titleRow = values[0].map((titleRowItem: any) => titleRowItem.toLowerCase());
 
-    let indexToTitle = new Map<string, number>(); // Index into value row that the data for each title exists.
+    let titleToMetaData = new Map<string, any>(); // Index into value row that the data for each title exists.
     titles.forEach(title => {
         let found = 0;
         titleRow.forEach((titleRowItem: any, i: number) => {
             if (titleRowItem.indexOf(title) !== -1) {
-                indexToTitle.set(title, i);
+                titleToMetaData.set(title, {
+                    index: i,
+                    col: String.fromCharCode(range.charCodeAt(0) + i) // Starting column letter plus index.
+                });
                 found++;
             }
         });
@@ -49,10 +71,14 @@ function parseTable(titles: string[], values: any[]): any[] {
         }
     });
 
-    return values.slice(1).map(row => {
-        let newRow: {[index:string]: string} = {};
-        indexToTitle.forEach((i, title) => {
-            newRow[title] = row[i];
+    return values.slice(1).map((row: any, i: number) => {
+        let newRow: {[index:string]: any} = {};
+        titleToMetaData.forEach((meta, title) => {
+            newRow[title] = {
+                val: row[meta.index],
+                row: i + 1,
+                col: meta.col
+            };
         });
         return newRow;
     });
@@ -69,8 +95,8 @@ export function sendNotificationsIfNeeded(
     let currentDateMS = killTime(currentDate).valueOf();
 
     tasks.forEach((task: any) => {
-        if (task.completed && task.completed.trim() !== '') return;
-        let taskDate = killTime(parseDate(task.due)).valueOf();
+        if (task.completed && task.completed.val && task.completed.val.trim() !== '') return;
+        let taskDate = killTime(parseDate(task.due.val)).valueOf();
 
         if (currentDateMS > taskDate) { // Late:
             notify(task, contacts, sendTextCallback, 'Late task: ');
@@ -85,33 +111,25 @@ export function sendNotificationsIfNeeded(
             notify(task, contacts, sendTextCallback, 'Due today: ');
         }
     });
-
-    // If: task is completed, ignore it.
-    // If: tasks are any of:
-    //   a. due tomorrow
-    //   b. due today
-    //   c. fucking late
-    //   Send a reminder SMS.
-    //   Ignore all others.
 }
 
 export function notify(task: any, contacts: any, sendTextCallback: SendTextCallback, prependMessage: string) {
-    if (task.people) {
-        let people = task.people.split(/\s*,\s*/g).map((person: any) => {
-            return contacts.filter((contact: any) => contact.person === person)[0];
+    if (task.people && task.people.val) {
+        let people = task.people.val.split(/\s*,\s*/g).map((person: any) => {
+            return contacts.filter((contact: any) => contact.person.val === person)[0];
         });
         people.forEach((person: any) => {
             let otherPeople = people.filter((otherPerson: any) => otherPerson !== person);
             let partners = ` We're all depending on you.`;
             if (otherPeople.length === 1) {
-                partners = ` Your partner in crime is ${otherPeople[0].person}.`;
+                partners = ` Your partner in crime is ${otherPeople[0].person.val}.`;
             } else if (otherPeople.length === 2) {
-                partners  = ` Your partners in crime are ${otherPeople[0].person} and ${otherPeople[1].person}.`;
+                partners  = ` Your partners in crime are ${otherPeople[0].person.val} and ${otherPeople[1].person.val}.`;
             } else if (otherPeople.length > 2) {
                 let lastPartner = otherPeople.pop();
-                partners  = ` Your partners in crime are ${otherPeople.map((c: any) => c.person).join(', ')}, and ${lastPartner.person}.`;
+                partners  = ` Your partners in crime are ${otherPeople.map((c: any) => c.person.val).join(', ')}, and ${lastPartner.person.val}.`;
             }
-            sendTextCallback(formatPhoneForTwilio(person.phone), `${prependMessage}${task.task}.${partners}`);
+            sendTextCallback(formatPhoneForTwilio(person.phone.val), `${prependMessage}${task.task.val}.${partners}`);
         });
     }
 }
@@ -134,23 +152,27 @@ function killTime(date: moment.Moment): moment.Moment {
 }
 
 function setupSuperAwesomeGoodTimes() {
-    let now = getCurrentDatetime();
-    let nextGoodTimes = getCurrentDatetime();
-
-    nextGoodTimes.millisecond(0);
-    nextGoodTimes.second(0);
-    nextGoodTimes.minute(0);
-    nextGoodTimes.hour(12);
-
-    if (nextGoodTimes <= now) {
-        nextGoodTimes.add(1, 'days');
-    }
-
-    let diffMillis = nextGoodTimes.valueOf() - now.valueOf();
-    setTimeout(() => {
+    if (config.has("testMode") && config.get<boolean>("testMode")) {
         runMeOnceADayAtTheCorrectTime();
-        setupSuperAwesomeGoodTimes();
-    }, diffMillis);
+    } else {
+        let now = getCurrentDatetime();
+        let nextGoodTimes = getCurrentDatetime();
+
+        nextGoodTimes.millisecond(0);
+        nextGoodTimes.second(0);
+        nextGoodTimes.minute(0);
+        nextGoodTimes.hour(12);
+
+        if (nextGoodTimes <= now) {
+            nextGoodTimes.add(1, 'days');
+        }
+
+        let diffMillis = nextGoodTimes.valueOf() - now.valueOf();
+        setTimeout(() => {
+            runMeOnceADayAtTheCorrectTime();
+            setupSuperAwesomeGoodTimes();
+        }, diffMillis);
+    }
 }
 
 setupSuperAwesomeGoodTimes();

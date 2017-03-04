@@ -16,7 +16,9 @@ Taskies:
  - [x] Build the application that all this IO is for.
  - [x] Work out method for testing. Async, time-based, mock-spreadsheet data, etc.
  - [x] Improve messages such that they contain 'Partners in crime' information.
- - [ ] Work out sufficient deployment stuff that receiving texts can be done practically.
+ - [x] Work out sufficient deployment stuff that receiving texts can be done practically.
+ - [ ] Assign completion codes automatically.
+ - [ ] Complete tasks based on receiving texts with completion codes.
 
 Resources:
  - [Webstorm Typescript Support](https://www.jetbrains.com/help/webstorm/2016.3/transpiling-typescript-to-javascript.html)

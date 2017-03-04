@@ -20,11 +20,16 @@ let sid = config.get<string>("twilioSecrets.accountSID"),
 let twilio = require("twilio")(sid, authToken);
 
 export function sendMessage(toNumber: string, message: string): Promise<any> {
-    return twilio.messages.create({
-        to: toNumber,
-        from: fromNumber,
-        body: message
-    });
+    if (config.has("testMode") && config.get<boolean>("testMode")) {
+        console.log(toNumber, message);
+        return Promise.resolve('(fakeSms)');
+    } else {
+        return twilio.messages.create({
+            to: toNumber,
+            from: fromNumber,
+            body: message
+        });
+    }
 }
 
 // Usage example:
