@@ -17,7 +17,7 @@ Taskies:
  - [x] Work out method for testing. Async, time-based, mock-spreadsheet data, etc.
  - [x] Improve messages such that they contain 'Partners in crime' information.
  - [x] Work out sufficient deployment stuff that receiving texts can be done practically.
- - [ ] Assign completion codes automatically.
+ - [x] Assign completion codes automatically.
  - [ ] Complete tasks based on receiving texts with completion codes.
 
 Resources:

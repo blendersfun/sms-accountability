@@ -34,14 +34,80 @@ function runMeOnceADayAtTheCorrectTime() {
 }
 
 function reconcileCompletionCodes(sheets: GoogleSheets, sheetId: string, scheduleName: string): Promise<void> {
-    // Read schedule in.
-    //  1. remove completion codes from completed items.
-    //  2. build a list of occupied codes
-    //  3. fill in codes for incomplete tasks
-
     return sheets.getSheetRange(sheetId, scheduleName, 'B:F').then(scheduleData => {
-        let tasks = parseTable(['completed', 'code'], scheduleData);
+        let tasks = parseTable(['due', 'completed', 'code'], scheduleData);
+        let tableUpdates: Promise<any>[] = [];
+        let occupiedCodes =  new Set<string>();
+        let cellsNeedingCodes: any[] = [];
+
+        //  1. remove completion codes from completed items.
+        //  2. build a list of occupied codes, and cells needing codes
+        tasks.forEach(task => {
+            if (isTaskComplete(task)) {
+                if (task.code.val) {
+                    tableUpdates.push(
+                        sheets.writeCell(sheetId, scheduleName, task.code.cell, '')
+                    );
+                }
+            } else {
+                if (task.code.val) {
+                    occupiedCodes.add(task.code.val);
+                } else {
+                    if (task.due.val) { // Make sure it has a due date to ignore comment lines.
+                        cellsNeedingCodes.push(task.code.cell);
+                    }
+                }
+            }
+        });
+
+        //  3. fill in codes for cells that need them
+        cellsNeedingCodes.forEach(cell => {
+            for (let iter = new CodeIterator(), code = iter.next(); true; code = iter.next()) {
+                if (!occupiedCodes.has(code)) {
+                    occupiedCodes.add(code);
+                    tableUpdates.push(
+                        sheets.writeCell(sheetId, scheduleName, cell, code)
+                    );
+                    break;
+                }
+            }
+        });
+
+        return Promise.all(tableUpdates)
     }).then(() => {});
+}
+
+// An iterator that returns unique alphabetic codes by converting
+// a numeric sequence to base 26 using the alphabet as it's symbols.
+export class CodeIterator {
+    private count = 0;
+
+    next(): string {
+        let code = CodeIterator.n2base26(this.count);
+        this.count++;
+        return code;
+    }
+
+    public static n2base26(n: number): string {
+        let base = 26;
+        let digits = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+        if (n < 0) {
+            return "";
+        }
+
+        let s = "";
+        while (true) {
+            let r = n % base;
+            s = digits[r] + s;
+            n = Math.floor(n / base);
+            if (n == 0) {
+                break;
+            }
+        }
+
+        return s;
+    }
 }
 
 function parseTable(titles: string[], tableData: any): any[] {
@@ -76,8 +142,7 @@ function parseTable(titles: string[], tableData: any): any[] {
         titleToMetaData.forEach((meta, title) => {
             newRow[title] = {
                 val: row[meta.index],
-                row: i + 1,
-                col: meta.col
+                cell: meta.col + (i + 2) // Compensate for slice off of titles and google sheets not being zero indexed.
             };
         });
         return newRow;
@@ -85,6 +150,10 @@ function parseTable(titles: string[], tableData: any): any[] {
 }
 
 type SendTextCallback = (toNumber: string, message: string) => void;
+
+function isTaskComplete(task: any): boolean {
+   return task.completed.val && task.completed.val.trim() !== '';
+}
 
 export function sendNotificationsIfNeeded(
     tasks: any,
@@ -95,7 +164,7 @@ export function sendNotificationsIfNeeded(
     let currentDateMS = killTime(currentDate).valueOf();
 
     tasks.forEach((task: any) => {
-        if (task.completed && task.completed.val && task.completed.val.trim() !== '') return;
+        if (isTaskComplete(task)) return;
         let taskDate = killTime(parseDate(task.due.val)).valueOf();
 
         if (currentDateMS > taskDate) { // Late:
@@ -114,7 +183,7 @@ export function sendNotificationsIfNeeded(
 }
 
 export function notify(task: any, contacts: any, sendTextCallback: SendTextCallback, prependMessage: string) {
-    if (task.people && task.people.val) {
+    if (task.people.val) {
         let people = task.people.val.split(/\s*,\s*/g).map((person: any) => {
             return contacts.filter((contact: any) => contact.person.val === person)[0];
         });
@@ -173,27 +242,6 @@ function setupSuperAwesomeGoodTimes() {
             setupSuperAwesomeGoodTimes();
         }, diffMillis);
     }
-}
-
-function n2base26(n) {
-    let base = 26;
-	let digits = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-
-    if (n < 0) {
-        return "";
-    }
-
-    let s = "";
-    while (true) {
-        let r = n % base;
-        s = digits[r] + s;
-        n = Math.floor(n / base);
-        if (n == 0) {
-            break;
-        }
-    }
-
-    return s;
 }
 
 setupSuperAwesomeGoodTimes();

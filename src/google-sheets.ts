@@ -48,7 +48,7 @@ export class GoogleSheets {
         });
     }
 
-    writeCell(sheetId: string, tabName: string, cell: string, value: string) {
+    writeCell(sheetId: string, tabName: string, cell: string, value: string): Promise<any> {
         return new Promise((resolve, reject) => {
             let range = tabName +'!'+ cell + ':' + cell;
             this.sheetsApi.spreadsheets.values.update(

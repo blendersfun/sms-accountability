@@ -1,4 +1,4 @@
-import { sendNotificationsIfNeeded, notify } from './index';
+import { sendNotificationsIfNeeded, notify, CodeIterator } from './index';
 import { parseDate } from './datetime';
 import * as chai from 'chai';
 
@@ -21,7 +21,8 @@ describe("sendNotificationsIfNeeded", () => {
             let tasks = [{
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/6/2017' },
-                people: { val: 'The Aliens' }
+                people: { val: 'The Aliens' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -39,7 +40,8 @@ describe("sendNotificationsIfNeeded", () => {
             let tasks = [{
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '1/1/2017' },
-                people: { val: 'The Aliens' }
+                people: { val: 'The Aliens' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -55,7 +57,8 @@ describe("sendNotificationsIfNeeded", () => {
             let tasks = [{
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/5/2017' },
-                people: { val: 'The Aliens' }
+                people: { val: 'The Aliens' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -72,7 +75,8 @@ describe("sendNotificationsIfNeeded", () => {
             let tasks = [{
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/4/2017' },
-                people: { val: 'The Aliens' }
+                people: { val: 'The Aliens' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -89,7 +93,8 @@ describe("sendNotificationsIfNeeded", () => {
             let tasks = [{
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/7/2017' },
-                people: { val: 'The Aliens' }
+                people: { val: 'The Aliens' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -106,7 +111,8 @@ describe("sendNotificationsIfNeeded", () => {
             let tasks = [{
                 task: { val: 'Make a fine, fine, *fine* breakfast for all the other roommates' },
                 due: { val: '2/6/2017' },
-                people: { val: 'Aaron, Nathan, The Aliens' }
+                people: { val: 'Aaron, Nathan, The Aliens' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -126,7 +132,8 @@ describe("sendNotificationsIfNeeded", () => {
             let tasks = [{
                 task: { val: 'Make a fine, fine, *fine* breakfast for all the other roommates' },
                 due: { val: '2/6/2017' },
-                people: { val: 'Aaron, The Aliens' }
+                people: { val: 'Aaron, The Aliens' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -174,7 +181,8 @@ describe("sendNotificationsIfNeeded", () => {
             },{
                 task: { val: 'Go up on the roof and howl for several hours' },
                 due: { val: '2/4/2017' },
-                people: { val: 'Aaron' }
+                people: { val: 'Aaron' },
+                completed: { val: '' }
             }];
 
             let messages: any[] = [];
@@ -200,7 +208,8 @@ describe('notify', function () {
                 let task = {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
-                    people: { val: 'Aaron' }
+                    people: { val: 'Aaron' },
+                    completed: { val: '' }
                 };
 
                 let messages: any[] = [];
@@ -214,7 +223,8 @@ describe('notify', function () {
                 let task = {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
-                    people: { val: 'Aaron, Nathan' }
+                    people: { val: 'Aaron, Nathan' },
+                    completed: { val: '' }
                 };
 
                 let messages: any[] = [];
@@ -229,7 +239,8 @@ describe('notify', function () {
                 let task = {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
-                    people: { val: 'Aaron, Nathan, The Aliens' }
+                    people: { val: 'Aaron, Nathan, The Aliens' },
+                    completed: { val: '' }
                 };
 
                 let messages: any[] = [];
@@ -245,7 +256,8 @@ describe('notify', function () {
                 let task = {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
-                    people: { val: 'Aaron, Nathan, The Aliens, Bag Man' }
+                    people: { val: 'Aaron, Nathan, The Aliens, Bag Man' },
+                    completed: { val: '' }
                 };
 
                 let messages: any[] = [];
@@ -259,5 +271,15 @@ describe('notify', function () {
                 chai.expect(messages[3][1]).to.contain('Your partners in crime are Aaron, Nathan, and The Aliens.');
             });
         });
+    });
+});
+
+describe('CodeIterator', function () {
+    it('n2base26 codes to be unique', function () {
+        let codes = new Set<string>();
+        for (let i = 0; i < 500; i++) {
+            codes.add(CodeIterator.n2base26(i));
+        }
+        chai.expect(codes.size).to.equal(500);
     });
 });
