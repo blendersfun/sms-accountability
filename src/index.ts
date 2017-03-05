@@ -175,4 +175,25 @@ function setupSuperAwesomeGoodTimes() {
     }
 }
 
+function n2base26(n) {
+    let base = 26;
+	let digits = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+    if (n < 0) {
+        return "";
+    }
+
+    let s = "";
+    while (true) {
+        let r = n % base;
+        s = digits[r] + s;
+        n = Math.floor(n / base);
+        if (n == 0) {
+            break;
+        }
+    }
+
+    return s;
+}
+
 setupSuperAwesomeGoodTimes();
