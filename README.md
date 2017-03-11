@@ -20,6 +20,7 @@ Taskies:
  - [x] Assign completion codes automatically.
  - [x] Complete tasks based on receiving texts with completion codes.
  - [x] Send out completion codes with reminder texts.
+ - [x] Add snarky completion messages.
 
 Resources:
  - [Webstorm Typescript Support](https://www.jetbrains.com/help/webstorm/2016.3/transpiling-typescript-to-javascript.html)

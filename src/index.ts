@@ -248,8 +248,6 @@ function setupSuperAwesomeGoodTimes() {
 setupSuperAwesomeGoodTimes();
 
 export function completeTaskReciever(smsMessage: any) {
-    console.log('I have recieved this!', smsMessage);
-
     let normalizePhone = (phone: string) => phone.replace(/[^\d]/g, '');
 
     let code = smsMessage.Body.replace(/\s*/g, '').toLocaleLowerCase();
@@ -276,7 +274,7 @@ export function completeTaskReciever(smsMessage: any) {
                     if (task) {
                         if (task.people.val.indexOf(person.person.val) !== -1) {
                             return sheets.writeCell(sheetId, scheduleName, task.completed.cell, 'x')
-                                .then(() => sendMessage(formatPhoneForTwilio(person.phone.val), `"${task.task.val}" has been marked complete.`))
+                                .then(() => sendMessage(formatPhoneForTwilio(person.phone.val), `"${task.task.val}" ${getCompletionMessage()}.`))
                                 .catch(error => console.error('Failed to reply about successful completion:', error));
                         } else {
                             return sendMessage(formatPhoneForTwilio(person.phone.val), 'WTF?! You ain\'t even assigned to that task, foo!');
@@ -290,6 +288,28 @@ export function completeTaskReciever(smsMessage: any) {
     .catch(error => {
         console.error('Something went *horribly* wrong: ', error);
     });
+}
+
+function getCompletionMessage(): string {
+    let messages = [
+        'has been shot out of the sky.',
+        'has been torn from limb to limb.',
+        'has been syphoned powerfully away to a dark abyss.',
+        'has been launched into space.',
+        'has been burned to the ground.',
+        'has been devowered by lions.',
+        'has been chased far away into the mountains.',
+        'has been trampled by a heard of elephants.',
+        'has sunk to the bottom of the Pacific ocean.',
+        'has been ROFL-stomped.',
+        'has been shattered into a million pieces.',
+        'has been reduced to an evenly distributed field of atomic particles.'
+    ];
+    return messages[getRandomArbitrary(0, messages.length)];
+}
+
+function getRandomArbitrary(min:number, max:number): number {
+    return Math.random() * (max - min) + min;
 }
 
 setMessageReciever(completeTaskReciever);
