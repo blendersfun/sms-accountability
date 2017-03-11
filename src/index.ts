@@ -20,7 +20,7 @@ function runMeOnceADayAtTheCorrectTime() {
 
             return Promise.all([schedulePromise, contactsPromise])
                 .then(([scheduleData, contactsData]) => {
-                    let tasks = parseTable(['task', 'due', 'people', 'completed'], scheduleData);
+                    let tasks = parseTable(['task', 'due', 'people', 'completed', 'code'], scheduleData);
                     let contacts = parseTable(['person', 'phone'], contactsData);
 
                     sendNotificationsIfNeeded(tasks, contacts, getCurrentDatetime(), (toNumber, message) => {
@@ -198,7 +198,8 @@ export function notify(task: any, contacts: any, sendTextCallback: SendTextCallb
                 let lastPartner = otherPeople.pop();
                 partners  = ` Your partners in crime are ${otherPeople.map((c: any) => c.person.val).join(', ')}, and ${lastPartner.person.val}.`;
             }
-            sendTextCallback(formatPhoneForTwilio(person.phone.val), `${prependMessage}${task.task.val}.${partners}`);
+            let markingComplete = ` Text back "${task.code.val}" when completed.`;
+            sendTextCallback(formatPhoneForTwilio(person.phone.val), `${prependMessage}${task.task.val}.${partners}${markingComplete}`);
         });
     }
 }
