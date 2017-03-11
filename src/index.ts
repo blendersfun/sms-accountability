@@ -274,7 +274,7 @@ export function completeTaskReciever(smsMessage: any) {
                     if (task) {
                         if (task.people.val.indexOf(person.person.val) !== -1) {
                             return sheets.writeCell(sheetId, scheduleName, task.completed.cell, 'x')
-                                .then(() => sendMessage(formatPhoneForTwilio(person.phone.val), `"${task.task.val}" ${getCompletionMessage()}.`))
+                                .then(() => sendMessage(formatPhoneForTwilio(person.phone.val), `"${task.task.val}" ${getCompletionMessage()}`))
                                 .catch(error => console.error('Failed to reply about successful completion:', error));
                         } else {
                             return sendMessage(formatPhoneForTwilio(person.phone.val), 'WTF?! You ain\'t even assigned to that task, foo!');
