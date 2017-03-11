@@ -290,7 +290,7 @@ export function completeTaskReciever(smsMessage: any) {
     });
 }
 
-function getCompletionMessage(): string {
+export function getCompletionMessage(): string {
     let messages = [
         'has been shot out of the sky.',
         'has been torn from limb to limb.',
@@ -309,7 +309,7 @@ function getCompletionMessage(): string {
 }
 
 function getRandomArbitrary(min:number, max:number): number {
-    return Math.random() * (max - min) + min;
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 setMessageReciever(completeTaskReciever);

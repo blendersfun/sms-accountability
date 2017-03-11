@@ -1,4 +1,4 @@
-import { sendNotificationsIfNeeded, notify, CodeIterator, completeTaskReciever } from './index';
+import { sendNotificationsIfNeeded, notify, CodeIterator, completeTaskReciever, getCompletionMessage } from './index';
 import { parseDate } from './datetime';
 import * as chai from 'chai';
 
@@ -22,6 +22,7 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/6/2017' },
                 people: { val: 'The Aliens' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -41,6 +42,7 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '1/1/2017' },
                 people: { val: 'The Aliens' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -58,6 +60,7 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/5/2017' },
                 people: { val: 'The Aliens' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -76,6 +79,7 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/4/2017' },
                 people: { val: 'The Aliens' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -94,6 +98,7 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/7/2017' },
                 people: { val: 'The Aliens' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -112,6 +117,7 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Make a fine, fine, *fine* breakfast for all the other roommates' },
                 due: { val: '2/6/2017' },
                 people: { val: 'Aaron, Nathan, The Aliens' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -133,6 +139,7 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Make a fine, fine, *fine* breakfast for all the other roommates' },
                 due: { val: '2/6/2017' },
                 people: { val: 'Aaron, The Aliens' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -172,16 +179,19 @@ describe("sendNotificationsIfNeeded", () => {
                 task: { val: 'Reduce all matter in the universe to a fine dust' },
                 due: { val: '2/4/2017' },
                 people: { val: 'The Aliens' },
+                code: { val: 'a' },
                 completed: { val: 'x' }
             },{
                 task: { val: 'Whisper funny rhymes to the cat' },
                 due: { val: '2/4/2017' },
                 people: { val: 'Nathan' },
+                code: { val: 'a' },
                 completed: { val: ' ' }
             },{
                 task: { val: 'Go up on the roof and howl for several hours' },
                 due: { val: '2/4/2017' },
                 people: { val: 'Aaron' },
+                code: { val: 'a' },
                 completed: { val: '' }
             }];
 
@@ -209,6 +219,7 @@ describe('notify', function () {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
                     people: { val: 'Aaron' },
+                    code: { val: 'a' },
                     completed: { val: '' }
                 };
 
@@ -224,6 +235,7 @@ describe('notify', function () {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
                     people: { val: 'Aaron, Nathan' },
+                    code: { val: 'a' },
                     completed: { val: '' }
                 };
 
@@ -240,6 +252,7 @@ describe('notify', function () {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
                     people: { val: 'Aaron, Nathan, The Aliens' },
+                    code: { val: 'a' },
                     completed: { val: '' }
                 };
 
@@ -257,6 +270,7 @@ describe('notify', function () {
                     task: { val: 'Go up on the roof and howl for several hours' },
                     due: { val: '2/4/2017' },
                     people: { val: 'Aaron, Nathan, The Aliens, Bag Man' },
+                    code: { val: 'a' },
                     completed: { val: '' }
                 };
 
@@ -281,5 +295,13 @@ describe('CodeIterator', function () {
             codes.add(CodeIterator.n2base26(i));
         }
         chai.expect(codes.size).to.equal(500);
+    });
+});
+
+describe('getCompletionMessage', function () {
+    it('returns a string', function () {
+        let message = getCompletionMessage();
+        chai.expect(message).not.to.be.undefined;
+        chai.expect(message.length).to.be.greaterThan(0);
     });
 });
