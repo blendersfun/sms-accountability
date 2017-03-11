@@ -1,7 +1,7 @@
 import { GoogleSheets } from './google-sheets';
 import * as config from 'config';
 import { getCurrentDatetime, parseDate } from './datetime';
-import { sendMessage } from "./sms";
+import { sendMessage, setMessageReciever } from "./sms";
 import * as moment from 'moment-timezone';
 
 function runMeOnceADayAtTheCorrectTime() {
@@ -245,3 +245,50 @@ function setupSuperAwesomeGoodTimes() {
 }
 
 setupSuperAwesomeGoodTimes();
+
+export function completeTaskReciever(smsMessage: any) {
+    console.log('I have recieved this!', smsMessage);
+
+    let normalizePhone = (phone: string) => phone.replace(/[^\d]/g, '');
+
+    let code = smsMessage.Body.replace(/\s*/g, '').toLocaleLowerCase();
+    let from = normalizePhone(smsMessage.From).slice(1);
+
+    return GoogleSheets.newConnection().then(sheets => {
+
+        let sheetId = config.get<string>('greatHouseMaintenance.googleSheetId');
+        let scheduleName = config.get<string>('greatHouseMaintenance.scheduleName');
+        let contactSheetName = config.get<string>('greatHouseMaintenance.contactSheetName');
+
+        let schedulePromise = sheets.getSheetRange(sheetId, scheduleName, 'B:F');
+        let contactsPromise = sheets.getSheetRange(sheetId, contactSheetName, 'A:D');
+
+        return Promise.all([schedulePromise, contactsPromise])
+            .then(([scheduleData, contactsData]) => {
+                let tasks = parseTable(['task', 'people', 'completed', 'code'], scheduleData);
+                let contacts = parseTable(['person', 'phone'], contactsData);
+
+                let person = contacts.find(contact => normalizePhone(contact.phone.val) === from);
+
+                if (person) {
+                    let task = tasks.find(task => task.code.val === code);
+                    if (task) {
+                        if (task.people.val.indexOf(person.person.val) !== -1) {
+                            return sheets.writeCell(sheetId, scheduleName, task.completed.cell, 'x')
+                                .then(() => sendMessage(formatPhoneForTwilio(person.phone.val), `"${task.task.val}" has been marked complete.`))
+                                .catch(error => console.error('Failed to reply about successful completion:', error));
+                        } else {
+                            return sendMessage(formatPhoneForTwilio(person.phone.val), 'WTF?! You ain\'t even assigned to that task, foo!');
+                        }
+                    } else {
+                        return sendMessage(formatPhoneForTwilio(person.phone.val), 'WTF?! That task ain\'t even there, bud!');
+                    }
+                }
+            });
+    })
+    .catch(error => {
+        console.error('Something went *horribly* wrong: ', error);
+    });
+}
+
+setMessageReciever(completeTaskReciever);

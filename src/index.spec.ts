@@ -1,4 +1,4 @@
-import { sendNotificationsIfNeeded, notify, CodeIterator } from './index';
+import { sendNotificationsIfNeeded, notify, CodeIterator, completeTaskReciever } from './index';
 import { parseDate } from './datetime';
 import * as chai from 'chai';
 
@@ -275,11 +275,37 @@ describe('notify', function () {
 });
 
 describe('CodeIterator', function () {
-    it('n2base26 codes to be unique', function () {
+    it('creates unique codes', function () {
         let codes = new Set<string>();
         for (let i = 0; i < 500; i++) {
             codes.add(CodeIterator.n2base26(i));
         }
         chai.expect(codes.size).to.equal(500);
+    });
+});
+
+describe('completeTaskReciever', function () {
+    let message = { ToCountry: 'US',
+        ToState: 'OR',
+        SmsMessageSid: 'SM5a202989e2bcd3bab4f5ce006da73f00',
+        NumMedia: '0',
+        ToCity: 'CHARBONNEAU',
+        FromZip: '97339',
+        SmsSid: 'SM5a202989e2bcd3bab4f5ce006da73f00',
+        FromState: 'OR',
+        SmsStatus: 'received',
+        FromCity: 'CORVALLIS',
+        Body: 'c',
+        FromCountry: 'US',
+        To: '+15036943429',
+        ToZip: '97070',
+        NumSegments: '1',
+        MessageSid: 'SM5a202989e2bcd3bab4f5ce006da73f00',
+        AccountSid: 'AC88d4c751a3e6c28ceafb141d5520995f',
+        From: '+15417408981',
+        ApiVersion: '2010-04-01'
+    };
+    it('does shit', function () {
+        return completeTaskReciever(message);
     });
 });

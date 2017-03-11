@@ -3,3 +3,4 @@ config/local.json
 dist/
 secrets/
 node_modules/
+shell-into-ec2-instance.sh
