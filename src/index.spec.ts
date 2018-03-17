@@ -1,6 +1,20 @@
-import { sendNotificationsIfNeeded, notify, CodeIterator, completeTaskReciever, getCompletionMessage } from './index';
+import {
+    unboundHandler,
+    sendNotificationsIfNeeded,
+    notify,
+    CodeIterator,
+    completeTaskReciever,
+    getCompletionMessage
+} from './index';
 import { parseDate } from './datetime';
 import * as chai from 'chai';
+import {
+    cloudwatchEventMarchNoonPDT,
+    cloudwatchEventDecemberNoonPDT,
+    cloudwatchEventDecemberNoonPST,
+    cloudwatchEventMarchNoonPST,
+    twilioGatewayEvent
+} from './lambda-test-events';
 
 let aaron = { person: { val: 'Aaron' },  phone: { val: '+15436759345' } };
 let nathan = { person: { val: 'Nathan' }, phone: { val: '+13456423456' } };
@@ -303,5 +317,47 @@ describe('getCompletionMessage', function () {
         let message = getCompletionMessage();
         chai.expect(message).not.to.be.undefined;
         chai.expect(message.length).to.be.greaterThan(0);
+    });
+});
+
+describe("handles triggers appropriately", () => {
+
+    var ranScheduled = false;
+    var ranSmsHandler = false;
+    var handler = unboundHandler.bind(null, {
+        runMeOnceADayAtTheCorrectTime: () => { ranScheduled = true; },
+        completeTaskReciever: () => { ranSmsHandler = true; },
+        testRunning: true
+    });
+
+
+    it('sends notifications at noon PDT in March.', () => {
+        ranScheduled = false;
+        handler(cloudwatchEventMarchNoonPDT, {}, () => {});
+        chai.expect(ranScheduled).to.equal(true);
+    });
+
+    it('does not send notifications at noon PDT in December.', () => {
+        ranScheduled = false;
+        handler(cloudwatchEventDecemberNoonPDT, {}, () => {});
+        chai.expect(ranScheduled).to.equal(false);
+    });
+
+    it('sends notifications at noon PST in December.', () => {
+        ranScheduled = false;
+        handler(cloudwatchEventDecemberNoonPST, {}, () => {});
+        chai.expect(ranScheduled).to.equal(true);
+    });
+
+    it('does not send notifications at noon PST in March.', () => {
+        ranScheduled = false;
+        handler(cloudwatchEventMarchNoonPST, {}, () => {});
+        chai.expect(ranScheduled).to.equal(false);
+    });
+
+    it('triggers completeTaskReciever on api gateway POST', () => {
+        ranSmsHandler = false;
+        handler(twilioGatewayEvent, {}, () => {});
+        chai.expect(ranSmsHandler).to.equal(true);
     });
 });

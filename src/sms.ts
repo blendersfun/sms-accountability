@@ -39,23 +39,3 @@ function example () {
         console.log(message.sid);
     });
 }
-
-/* Receive Message */
-
-let messageReciever = function (smsMessage: any): void {};
-
-export function setMessageReciever(callback: (smsMessage: any) => void) {
-    messageReciever = callback;
-}
-
-let app = express();
-app.use(bodyParser.urlencoded({extended: false}));
-
-app.post('/sms-webhook', function (req: any, res: any) {
-    let response = messageReciever(req.body);
-    res.send(`<Response></Response>`);
-});
-
-app.listen(55555, function () {
-    console.log('Example app listening on port 55555!');
-});

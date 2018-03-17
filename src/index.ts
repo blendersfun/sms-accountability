@@ -1,10 +1,45 @@
 import { GoogleSheets } from './google-sheets';
 import * as config from 'config';
-import { getCurrentDatetime, parseDate } from './datetime';
-import { sendMessage, setMessageReciever } from "./sms";
+import { getCurrentDatetime, parseDate, parseAndLocalizeDatetime } from './datetime';
+import { sendMessage } from "./sms";
 import * as moment from 'moment-timezone';
 
-function runMeOnceADayAtTheCorrectTime() {
+export function unboundHandler(triggers, event, context, callback) {
+    if (!triggers.testRunning) {
+        console.log(event);
+    }
+
+    if (event['detail-type'] === 'Scheduled Event') {
+        if(parseAndLocalizeDatetime(event.time).hour() === 12) {
+            triggers.runMeOnceADayAtTheCorrectTime();
+        }
+    } else if (event.resource === '/sms-notifier-lambda' && event.httpMethod === 'POST') {
+        var jsonBody = event.body.split('&')
+            .map(pair => pair.split('='))
+            .reduce((acc, cur) => {
+                acc[cur[0]] = decodeURIComponent(cur[1]);
+                return acc; },
+            {});
+
+        triggers.completeTaskReciever(jsonBody);
+    }
+
+    var response = {
+        statusCode: 200,
+        headers: {
+            "content-type" : "application/xml"
+        },
+        body: '<Response></Response>'
+    };
+    callback(null, response);
+}
+
+export const handler = unboundHandler.bind(null, {
+    runMeOnceADayAtTheCorrectTime,
+    completeTaskReciever
+});
+
+export function runMeOnceADayAtTheCorrectTime() {
     let sheetId = config.get<string>('greatHouseMaintenance.googleSheetId');
     let scheduleName = config.get<string>('greatHouseMaintenance.scheduleName');
     let contactSheetName = config.get<string>('greatHouseMaintenance.contactSheetName');
@@ -221,32 +256,6 @@ function killTime(date: moment.Moment): moment.Moment {
     return date;
 }
 
-function setupSuperAwesomeGoodTimes() {
-    if (config.has("testMode") && config.get<boolean>("testMode")) {
-        runMeOnceADayAtTheCorrectTime();
-    } else {
-        let now = getCurrentDatetime();
-        let nextGoodTimes = getCurrentDatetime();
-
-        nextGoodTimes.millisecond(0);
-        nextGoodTimes.second(0);
-        nextGoodTimes.minute(0);
-        nextGoodTimes.hour(12);
-
-        if (nextGoodTimes <= now) {
-            nextGoodTimes.add(1, 'days');
-        }
-
-        let diffMillis = nextGoodTimes.valueOf() - now.valueOf();
-        setTimeout(() => {
-            runMeOnceADayAtTheCorrectTime();
-            setupSuperAwesomeGoodTimes();
-        }, diffMillis);
-    }
-}
-
-setupSuperAwesomeGoodTimes();
-
 export function completeTaskReciever(smsMessage: any) {
     let normalizePhone = (phone: string) => phone.replace(/[^\d]/g, '');
 
@@ -311,5 +320,3 @@ export function getCompletionMessage(): string {
 function getRandomArbitrary(min:number, max:number): number {
     return Math.floor(Math.random() * (max - min) + min);
 }
-
-setMessageReciever(completeTaskReciever);

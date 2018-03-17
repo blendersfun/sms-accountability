@@ -1,7 +1,10 @@
 *.swp
 config/local.json
+config/local.js
+config/sms-notifier-*
 dist/
 secrets/
 node_modules/
 shell-into-ec2-instance.sh
 package-lock.json
+test.js
