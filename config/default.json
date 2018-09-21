@@ -1,1 +1,13 @@
-{}
+{
+    "twilioSecrets": {
+        "accountSID": "",
+        "authToken": "",
+        "phone": ""
+    },
+    "greatHouseMaintenance": {
+        "googleSheetId": "1KuSSE1gyCGmstAp_yrQzDiFiv_uCvruOmlPcqPBsceg",
+        "scheduleName": "Maintenance Schedule",
+        "contactSheetName": "Contacts"
+    },
+    "serviceAccountConfigPath": ""
+}

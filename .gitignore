@@ -3,6 +3,7 @@ config/local.json
 config/local.js
 config/sms-notifier-*
 dist/
+deploy/
 secrets/
 node_modules/
 shell-into-ec2-instance.sh
