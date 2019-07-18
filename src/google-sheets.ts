@@ -1,14 +1,14 @@
 import * as config from 'config';
 import { FileUtils } from './file-utils';
-import * as googleapis from 'googleapis';
+import { google } from 'googleapis';
 
 export class GoogleSheets {
-    private sheetsApi: googleapis.IGoogleSheets;
+    private sheetsApi;
 
     static newConnection(): Promise<GoogleSheets> {
         return FileUtils.loadJson(config.get<string>('serviceAccountConfigPath'))
             .then(json => {
-                let jwtClient = new googleapis.auth.JWT(json['client_email'], null, json['private_key'], [
+                let jwtClient = new google.auth.JWT(json['client_email'], null, json['private_key'], [
                     'https://www.googleapis.com/auth/spreadsheets'
                 ], null);
 
@@ -25,9 +25,9 @@ export class GoogleSheets {
     }
 
     private constructor(
-        private jwtClient: googleapis.IGoogleApisJWTClient
+        private jwtClient
     ) {
-        this.sheetsApi = googleapis.sheets('v4');
+        this.sheetsApi = google.sheets('v4');
     }
 
     getSheetRange(sheetId: string, tabName: string, range: string): Promise<any> {

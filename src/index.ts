@@ -146,8 +146,8 @@ export class CodeIterator {
 }
 
 function parseTable(titles: string[], tableData: any): any[] {
-    let values = tableData.values;
-    let range = tableData.range.slice(tableData.range.indexOf('!') + 1);
+    let values = tableData.data.values;
+    let range = tableData.data.range.slice(tableData.data.range.indexOf('!') + 1);
 
     titles = titles.map(title => title.toLowerCase());
     let titleRow = values[0].map((titleRowItem: any) => titleRowItem.toLowerCase());
@@ -306,7 +306,7 @@ export function getCompletionMessage(): string {
         'has been syphoned powerfully away to a dark abyss.',
         'has been launched into space.',
         'has been burned to the ground.',
-        'has been devowered by lions.',
+        'has been devoured by lions.',
         'has been chased far away into the mountains.',
         'has been trampled by a heard of elephants.',
         'has sunk to the bottom of the Pacific ocean.',
